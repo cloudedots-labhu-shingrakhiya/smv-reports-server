@@ -1,6 +1,7 @@
 from datetime import datetime
 from helper.db import get_connection
 from helper.response import JSONEncoder, Response as Res
+from middlewares.query import getLimit
 from bson.objectid import ObjectId
 import json
 
@@ -44,8 +45,10 @@ async def userReport(id):
         return Res(500).errorRes()
 
 
-async def salesReports():
+async def salesReports(queryObj):
     try:
+        limit = getLimit(queryObj)
+        print('limit.....', type(limit))
         conn = await get_connection()
         pipeline = [
             {
@@ -54,9 +57,24 @@ async def salesReports():
                 }}
         ]
 
+        # if startDate and endDate:
+        #     pipeline[0]['$match']['createdAt'] = {
+        #         '$gte': startDate,
+        #         '$lte': endDate
+        #     }
+        # elif startDate and not endDate:
+        #     pipeline[0]['$match']['createdAt'] = {
+        #         '$gte': startDate
+        #     }
+        # elif not startDate and endDate:
+        #     pipeline[0]['$match']['createdAt'] = {
+        #         '$lte': endDate
+        #     }
+        print('pipeline..',  pipeline)
         allSales = json.loads(json.dumps(
             list(conn.sales.aggregate(pipeline)), cls=JSONEncoder))
+
         return allSales
     except Exception as error:
-        print('Error in Users reports ', error)
+        print('Error in Sales reports ', error)
         return Res(500).errorRes()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from fastapi import APIRouter, Request, Response
 from typing import Optional
 from helper.response import Response as Res, JSONEncoder
@@ -35,7 +35,8 @@ async def getUserReport(id: str, req: Request, res: Response):
 @router.get("/sales-reports")
 async def getSelesReports(req: Request, res: Response):
     try:
-        report = await salesReports()
+        print('sales route.......')
+        report = await salesReports(req.query_params)
         if len(report) != 0:
             return Res(report).successRes()
         else:

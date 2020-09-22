@@ -24,7 +24,8 @@ async def checkHeaders(request: Request, call_next):
         print('url...', NODE_SERVER_URL)
 
         apiRes = requests.post(NODE_SERVER_URL, data={},
-                               headers=request.headers)
+                               headers=request.headers, params=request.query_params)
+
         if apiRes.status_code == 200:
             return await call_next(request)
         else:
@@ -32,5 +33,5 @@ async def checkHeaders(request: Request, call_next):
                                status_code=apiRes.status_code, headers=dict(apiRes.headers))
             return res
     except Exception as error:
-        print('Error in checkHeaders middleware ', error)
+        print('Error in checkHeaders middleware in server.py ', error)
         return Res(500).errorRes()
