@@ -9,7 +9,7 @@ router = APIRouter()
 @router.get("/users-reports")
 async def getUsersReports(req: Request, res: Response):
     try:
-        report = await usersReports()
+        report = await usersReports(req.query_params)
         if len(report) != 0:
             return Res(report).successRes()
         else:
@@ -35,7 +35,6 @@ async def getUserReport(id: str, req: Request, res: Response):
 @router.get("/sales-reports")
 async def getSelesReports(req: Request, res: Response):
     try:
-        print('sales route.......')
         report = await salesReports(req.query_params)
         if len(report) != 0:
             return Res(report).successRes()
