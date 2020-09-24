@@ -16,8 +16,15 @@ async def usersReports(queryObj):
         search = getSearch(queryObj)
         limit = getLimit(queryObj)
         date = getDate(queryObj)
+        queryProject = {
+            'name': {'$concat': ['$firstName', ' ', '$lastName']},
+            'email': 1,
+            'contact': 1,
+            'address': 1,
+            'avatar': 1
+        }
 
-        dbQuery = await usersQuery(search, '', date, False, sort, skip, limit)
+        dbQuery = await usersQuery(search, '', queryProject, date, False, sort, skip, limit)
 
         allUser = json.loads(json.dumps(
             list(conn.users.aggregate(dbQuery)), cls=JSONEncoder))
@@ -39,8 +46,7 @@ async def userReport(id):
                 }},
             {
                 '$project': {
-                    'firstName': 1,
-                    'lastName': 1,
+                    'name': {'$concat': ['$firstName', ' ', '$lastName']},
                     'email': 1,
                     'contact': 1,
                     'address': 1,
@@ -65,7 +71,7 @@ async def salesReports(queryObj):
         date = getDate(queryObj)
         queryProject = {
             'salesOfficer.sessions': 0,
-            'salesOfficer.password': 0,
+            'salesOfficer.password': 0
         }
         conn = await get_connection()
 

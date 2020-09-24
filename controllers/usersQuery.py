@@ -4,25 +4,8 @@ from bson.objectid import ObjectId
 import json
 
 
-async def usersQuery(textSearch, search, date, onlyTotal, sort, skip, limit):
+async def usersQuery(textSearch, searchProp, queryProject, date, onlyTotal, sort, skip, limit):
     try:
-        queryProject = {
-            'firstName': 1,
-            'lastName': 1,
-            'email': 1,
-            'contact': 1,
-            'address': 1,
-            'avatar': 1
-        }
-        if len(textSearch) > 0 and not textSearch.isspace():
-            queryProject['score'] = {'$meta': 'textScore'
-                                     }
-            for key in dict(sort):
-                sort.pop(key)
-
-            sort['score'] = {'$meta': 'textScore'
-                             }
-
         query = [
             {
                 '$match': {
@@ -42,18 +25,34 @@ async def usersQuery(textSearch, search, date, onlyTotal, sort, skip, limit):
         ]
 
         if len(textSearch) > 0 and not textSearch.isspace():
-            query[0]['$match'].update({'$text': {'$search': textSearch}})
+            query[0]['$match'].update(
+                {'$text': {'$search': textSearch,  '$language': 'es',  '$caseSensitive': False, '$diacriticSensitive': True}})
 
-        if len(search) > 0 and not search.isspace():
+            queryProject['score'] = {'$meta': 'textScore'
+                                     }
+            for key in dict(sort):
+                sort.pop(key)
+
+            sort['score'] = {'$meta': 'textScore'
+                             }
+
+        elif len(searchProp) > 0 and not searchProp.isspace():
             query.append({'$match': {
-                'name': {'$regex': search,
+                'name': {'$regex': searchProp,
                          '$options': 'i'
                          }
             }
             })
-        
+
         if date:
-            print('date.......', dict(date))
+            query[0]['$match'].update({
+                'createdAt': {'$gte': date['startDate'], '$lte': date['endDate']}
+            })
+
+        if onlyTotal == True:
+            query.append({
+                '$count': 'total'
+            })
 
         print('query.........', query)
         return query

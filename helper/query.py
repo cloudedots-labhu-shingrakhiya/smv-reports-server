@@ -7,7 +7,7 @@ import json
 
 def getSort(queryObj):
     try:
-        sort = queryObj['sort'] if 'sort' in queryObj else 'firstName'
+        sort = queryObj['sort'] if 'sort' in queryObj else 'name'
         order = queryObj['order'] if 'order' in queryObj else 'asc'
         return {
             sort:  1 if (order == 'asc' or order == 1) else -1
@@ -21,7 +21,7 @@ def getSkip(queryObj):
     try:
         limit = getLimit(queryObj)
         page = getPage(queryObj)
-        return (limit*(int(page) - 1)) if limit else 0
+        return (int(limit)*(int(page) - 1)) if limit else 0
     except Exception as error:
         print('Error in getSkip function ', error)
         return Res(500).errorRes()
@@ -56,14 +56,12 @@ def getDate(queryObj):
     try:
         if(queryObj and ('startDate' in queryObj or 'endDate' in queryObj)):
             if 'startDate' in queryObj and len(queryObj['startDate']) > 0 and not queryObj['startDate'].isspace():
-                startDate = datetime.strptime(
-                    queryObj['startDate'], "%d/%m/%Y")
-                print('startDate..', startDate, type(startDate))
+                startDate = datetime.combine(datetime.strptime(
+                    queryObj['startDate'], "%d/%m/%Y"), datetime.min.time())
 
             if 'endDate' in queryObj and len(queryObj['endDate']) > 0 and not queryObj['endDate'].isspace():
                 endDate = datetime.combine(datetime.strptime(
                     queryObj['endDate'], "%d/%m/%Y"), datetime.max.time())
-                print('endDate with max...', endDate,  type(endDate))
 
             return {
                 'startDate': startDate or '',
