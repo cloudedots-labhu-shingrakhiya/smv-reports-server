@@ -4,8 +4,15 @@ from bson.objectid import ObjectId
 import json
 
 
-async def usersQuery(textSearch, searchProp, queryProject, date, onlyTotal, sort, skip, limit):
+async def usersQuery(textSearch, searchProp, date, onlyTotal, sort, skip, limit):
     try:
+        queryProject = {
+            'name': {'$concat': ['$firstName', ' ', '$lastName']},
+            'email': 1,
+            'contact': 1,
+            'address': 1,
+            'avatar': 1
+        }
         query = [
             {
                 '$match': {
@@ -54,7 +61,7 @@ async def usersQuery(textSearch, searchProp, queryProject, date, onlyTotal, sort
                 '$count': 'total'
             })
 
-        print('query.........', query)
+        print('user query.........', query)
         return query
 
     except Exception as error:
